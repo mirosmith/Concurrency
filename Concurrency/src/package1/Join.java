@@ -1,65 +1,65 @@
 package package1;
 
-public class Join {
+class ThreadB extends Thread {
 
-    public static void showMessage(String text) {
-	System.out.println(Thread.currentThread().getName() + " says: " + text);
-    }
+    @Override
+    public void run() {
 
-    public static class Loop implements Runnable {	
+	for (int i = 0; i < 10; i++) {
 
-	private String[] words = { "House", "Electricity", "Toilet", "Heating", "Decoration" };	
-	
-	@Override
-	public void run() {
+	    System.out.println(Thread.currentThread().getName() + " is running, i = " + i);
+
 	    try {
-		
-		for (String s : words) {
-
-		    Thread.sleep(3000);
-		    showMessage("working on " + s);
-
-		}
-		showMessage("I am finished");
-
+		Thread.sleep(500);
 	    } catch (InterruptedException e) {
-		showMessage("I didnt finish my job");
-	    }
 
-	}	
-	
-
-    }    
-    
-
-    public static void main(String[] args) throws InterruptedException {	
-	
-	Thread.currentThread().setName("Boss"); 
-	
-	showMessage("I will wait until you finish");
-	Long begin = System.currentTimeMillis();
-	
-
-	Thread t = new Thread(new Loop());
-	t.setName("Employee");
-
-	t.start();	
-
-	Long time;
-
-	while (t.isAlive()) {
-
-	    time = System.currentTimeMillis() - begin;
-
-	    if ((time > 10000) && t.isAlive()) {
-		showMessage("I am tired of waiting");
-		t.interrupt();
-		t.join();
+		e.printStackTrace();
 	    }
 
 	}
-	showMessage("Go home.");
 
+    }
+    
+}
+    
+class MyThreads extends Thread {
+
+    @Override
+    public void run() {	
+
+	Thread t0 = new ThreadB();
+	t0.setName("Fox");
+	t0.start();
+	
+	Thread t1 = new ThreadB();
+	t1.setName("Bear");
+	t1.start();
+	
+	try {
+	    t0.join();
+	    t1.join();
+	} catch (InterruptedException e) {	    
+	    e.printStackTrace();
+	}
+	
+	System.out.println("Fox and Bear are done.");
+	
+
+    }
+}    
+
+public class Join { 
+
+    public static void main(String[] args) throws InterruptedException {
+	
+	Thread a = new MyThreads();	
+	
+	a.start();
+	
+	a.join();	
+	
+	System.out.println("Main thread is also done");
+	
     }
 
 }
